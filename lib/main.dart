@@ -1,113 +1,166 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertemplate/_core/controller/base_controller.dart';
+import 'package:fluttertemplate/_core/lang/language_manager.dart';
+import 'package:fluttertemplate/_core/navigation/navigation_route.dart';
+import 'package:fluttertemplate/_core/theme/app_theme.dart';
+import 'package:fluttertemplate/controller/binding/controller_binding.dart';
+import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
-void main() {
+import '_core/controller/main_controller.dart';
+import '_core/view/base_view.dart';
+import 'controller/counter_controller.dart';
+
+void main() async {
+  await GetStorage.init();
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
+      enableLog: false,
+      initialBinding: ControllerBinding(),
       title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
+      theme: AppTheme.instance.lightTheme,
+      darkTheme: AppTheme.instance.darkTheme,
+      locale: LanguageManager.instance.locale,
+      fallbackLocale: LanguageManager.instance.fallbackLocale,
+      translations: LanguageManager.instance,
+      home: buildCounterView(),
+      getPages: NavigationRoute.instance.routes,
+    );
+  }
+
+  BaseView<BaseController> buildCounterView() {
+    return BaseView(
+      controller: Get.put(CounterController()),
+      onPageBuilder: (context, controller) {
+        return Scaffold(
+          appBar: buildAppBar(),
+          body: buildBody(controller, context),
+          floatingActionButton: buildFloatingActionButton(controller),
+        );
+      },
+    );
+  }
+
+  Center buildBody(CounterController controller, BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text(
+            'hello'.tr,
+          ),
+          getCountView(controller, context),
+        ],
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+    );
+  }
+
+  Column buildFloatingActionButton(CounterController controller) {
+    final MainController mainController = Get.put(MainController());
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        FloatingActionButton(heroTag: "floating-1",
+          onPressed: () async {
+            await controller.increment();
+            Get.snackbar("Arttırma İşlemi", "Sayı Arttırıldı: " + controller.counter['count'].toString(),
+                colorText: Colors.white, snackPosition: SnackPosition.TOP);
+            mainController.changeTheme();
+          },
+          tooltip: 'Increment',
+          child: Icon(Icons.add),
+        ),
+        SizedBox(height: 5),
+        FloatingActionButton(heroTag: "floating-2",
+          backgroundColor: Colors.red,
+          onPressed: () async {
+            await controller.decrement();
+            Get.snackbar("Azaltma İşlemi", "Sayı Azaltıldı: " + controller.counter['count'].toString(),
+                colorText: Colors.white, snackPosition: SnackPosition.TOP);
+            mainController.changeTheme();
+          },
+          tooltip: 'Decrement',
+          child: Icon(Icons.remove),
+        ),
+        SizedBox(height: 5),
+        FloatingActionButton(heroTag: "floating-3",
+          backgroundColor: Colors.blue,
+          onPressed: () {
+            controller.remove();
+          },
+          tooltip: 'Remove',
+          child: Icon(Icons.delete),
+        ),
+      ],
+    );
+  }
+
+  Obx getCountView(CounterController controller, BuildContext context) {
+    return Obx(
+      () => Column(
+        children: [
+          Text(
+            controller.count.toString(),
+            style: Theme.of(context).textTheme.headline4,
+          ),
+          Text(
+            controller.rep.toString(),
+            style: Theme.of(context).textTheme.headline4,
+          ),
+          Hero(tag: "floating-4",
+                      child: FlatButton(
+              onPressed: () => Get.toNamed('/second-page'),
+               child: Text('Second Page'),
+               color: Colors.blue,
+               ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  AppBar buildAppBar() {
+    return AppBar(
+      title: Text("widget.title"),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
-
+class SecondPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
+    return BaseView(
+      onPageBuilder: (context, controller) {
+        return Scaffold(
+          appBar: AppBar(),
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  child: Hero(tag:"floating-4",child: Text("Second Page")),
+                ),
+                Container(
+                  child: FlatButton(
+                    color: Colors.blue,
+                    onPressed: () {
+                      Get.back();
+                    },
+                    child: Text('geri dön'),
+                  ),
+                )
+              ],
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+          ),
+        );
+      },
+      controller: Get.put(MainController()),
     );
   }
 }
