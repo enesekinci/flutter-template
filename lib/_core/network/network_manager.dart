@@ -1,51 +1,84 @@
 import 'package:dio/dio.dart';
 import 'package:get/get_connect/http/src/status/http_status.dart';
-import 'package:get_storage/get_storage.dart';
 
-import '../../model/base_error.dart';
-import '../model/base_model.dart';
+import '../constants/app/app_constants.dart';
 
 class NetworkManager {
   Dio _dio;
   static NetworkManager _instance = NetworkManager._init();
   static NetworkManager get instance => _instance;
+
   NetworkManager._init() {
     final _baseOptions = BaseOptions(
-      baseUrl: "",
-      headers: {"val": GetStorage().read("jwt_token"), "": ""},
+      baseUrl: ApplicationConstants.BASE_URL,
     );
+
     _dio = Dio(_baseOptions);
 
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (request) {
-        request.path += "Enes";
+        request.headers['Content-Type'] = 'application/json';
+        return request;
       },
       onResponse: (response) {
-        return response.data;
+        return response;
       },
       onError: (error) {
-        return BaseError(message: error.message);
+        print("dio error");
+        print(error);
+        return error;
+        // return BaseError(message: error.message);
       },
     ));
   }
 
-  Future dioGet<T extends BaseModel>(String path, T model) async {
+  Future get({String path, dynamic data}) async {
     final response = await _dio.get(path);
 
+    return responseControl(response);
+  }
+
+  Future post({String path, dynamic data, Options options}) async {
+    try {
+      final response = await _dio.post(path, data: data, options: options);
+      print("network response");
+      print(response);
+      return responseControl(response);
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future put({String path, dynamic data}) async {
+    final response = await _dio.put(path, data: data);
+
+    return responseControl(response);
+  }
+
+  Future delete({String path, dynamic data}) async {
+    final response = await _dio.delete(path, data: data);
+
+    return responseControl(response);
+  }
+
+  Future download({String path, String savePath}) async {
+    final response = await _dio.download(path, savePath);
+
+    return responseControl(response);
+  }
+
+  dynamic responseControl(Response response) {
     switch (response.statusCode) {
       case HttpStatus.ok:
         final responseBody = response.data;
 
-        if (responseBody is List) {
-          return responseBody.map((e) => model.fromJson(e)).toList();
-        } else if (responseBody is Map) {
-          return model.fromJson(responseBody);
-        }
+        print("responseBody");
+        print(responseBody);
 
         return responseBody;
-
         break;
       default:
+        return false;
     }
   }
 }

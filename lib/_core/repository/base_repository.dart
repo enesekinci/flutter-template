@@ -4,7 +4,7 @@ import '../provider/base_provider.dart';
 abstract class BaseRepository {
   final BaseProvider provider;
 
-  BaseRepository._init(this.provider);
+  BaseRepository(this.provider);
 
   Future<List<BaseModel>> getList();
 

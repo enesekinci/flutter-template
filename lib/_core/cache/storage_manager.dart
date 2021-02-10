@@ -43,24 +43,24 @@ class StorageManager {
     return null;
   }
 
-  void setData({String key, dynamic data}) {
-    _storage.write(key, data);
+  Future<void> setData({String key, dynamic data}) async {
+    await _storage.write(key, data);
   }
 
-  void setDataWithTime({String key, dynamic data, int time = 24}) {
+  Future<void> setDataWithTime({String key, dynamic data, int time = 24}) async {
     Map<String, dynamic> storageData = {
       "data": data,
       "time": DateTime.now().add(Duration(hours: time)).toString(),
     };
-    _storage.write(key, storageData);
+    await _storage.write(key, storageData);
   }
 
   bool hasData(String key) {
     return _storage.hasData(key);
   }
 
-  bool deleteData({String key}) {
-    _storage.remove(key);
+  Future<bool> deleteData({String key}) async {
+    await _storage.remove(key);
     return true;
   }
 

@@ -2,13 +2,13 @@ import '../_core/model/base_model.dart';
 
 class User extends BaseModel {
   final BigInt id;
-  final String username;
+  final String email;
   final String name;
 
-  User({this.id, this.username, this.name});
+  User({this.id, this.email, this.name});
 
   @override
-    fromJson(Map<String, Object> json) {
+  fromJson(Map<String, Object> json) {
     throw UnimplementedError();
   }
 
@@ -18,5 +18,5 @@ class User extends BaseModel {
   }
 
   @override
-  List<Object> get props => [id, username, name];
+  List<Object> get props => [id, email, name];
 }
