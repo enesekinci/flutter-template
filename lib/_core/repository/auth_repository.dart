@@ -1,6 +1,4 @@
-import 'package:fluttertemplate/_core/cache/storage_manager.dart';
-import 'package:fluttertemplate/model/user_model.dart';
-
+import '../cache/storage_manager.dart';
 import '../network/network_manager.dart';
 
 class AuthRepository {
@@ -26,24 +24,30 @@ class AuthRepository {
     print("auth repo");
     print(response);
 
-    if (response != false) {
-      User authUser = new User(
-          id: BigInt.from(response['user']['id']),
-          name: response['user']['name'].toString() ?? "super",
-          email: response['user']['email'].toString() ?? "super@super.com");
-      print("auth repo rememberMe => " + rememberMe.toString());
+    print(response is Map);
+
+    if (response['status'] != false) {
+      final result = response["result"];
+      // User authUser = User.fromJson(result["auth_user"]);
+      print("fromJson geçti");
       if (rememberMe) {
-        print("auth repo token => " + response['token']);
-        StorageManager.instance.setData(key: "auth_token", data: response['token']);
-        StorageManager.instance.setData(key: "auth_user", data: response['user']);
+        print("auth repo token => " + result['auth_token']);
+        StorageManager.instance.setData(key: "auth_token", data: result['auth_token']);
+        StorageManager.instance.setData(key: "auth_user", data: result["auth_user"]);
       }
+
+      print("repo returnden önce");
+      print(result["auth_user"]);
+
       return {
-        "authUser": authUser,
-        "token": response['token'],
+        "auth_user": result["auth_user"],
+        "auth_token": result['auth_token'],
+        // "email": authUser.email,
+        // "username": authUser.username ?? null,
       };
     }
 
-    return false;
+    return response['message'];
   }
 
   Future<void> logout() async {

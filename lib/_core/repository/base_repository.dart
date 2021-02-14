@@ -1,4 +1,3 @@
-import '../model/base_model.dart';
 import '../provider/base_provider.dart';
 
 abstract class BaseRepository {
@@ -6,15 +5,15 @@ abstract class BaseRepository {
 
   BaseRepository(this.provider);
 
-  Future<List<BaseModel>> getList();
+  Future<List<dynamic>> getList();
 
-  Future<List<BaseModel>> getFilteredList({Map filter});
+  Future<List<dynamic>> getFilteredList({Map filter});
 
-  Future<BaseModel> store({Map data});
+  Future<dynamic> store({Map data});
 
-  Future<BaseModel> findById({BigInt id});
+  Future<dynamic> findById({BigInt id});
 
-  Future<BaseModel> update({BaseModel data});
+  Future<dynamic> update({dynamic data});
 
-  Future<bool> destroy({BaseModel data});
+  Future<bool> destroy({dynamic data});
 }

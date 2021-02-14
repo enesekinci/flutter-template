@@ -1,22 +1,28 @@
-import '../_core/model/base_model.dart';
+import 'package:equatable/equatable.dart';
+import 'package:flutter/widgets.dart';
 
-class User extends BaseModel {
-  final BigInt id;
-  final String email;
-  final String name;
+// ignore: must_be_immutable
+class User extends Equatable {
+  String name;
+  String email;
 
-  User({this.id, this.email, this.name});
+  User({@required this.name, @required this.email});
 
-  @override
-  fromJson(Map<String, Object> json) {
-    throw UnimplementedError();
+  User.fromJson(Map<String, dynamic> json) {
+    print("fromJson geldi");
+    print(json);
+    name = json['name'];
+    email = json['email'];
+    print("fromJson geçti..");
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['name'] = this.name;
+    data['email'] = this.email;
+    return data;
   }
 
   @override
-  Map<String, Object> toJson() {
-    throw UnimplementedError();
-  }
-
-  @override
-  List<Object> get props => [id, email, name];
+  List<Object> get props => [name, email];
 }

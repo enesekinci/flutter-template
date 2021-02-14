@@ -5,10 +5,16 @@ import '../theme/app_theme.dart';
 import 'base_controller.dart';
 
 class MainController extends BaseController {
+  static MainController _instance = MainController._init();
+  static MainController get instance => _instance;
+
+  MainController._init();
+
   changeTheme() {
     print("change Theme");
     print(Get.isDarkMode);
-    Get.changeTheme(Get.isDarkMode ? AppTheme.instance.lightTheme : AppTheme.instance.darkTheme);
+    Get.changeThemeMode(Get.isDarkMode ? ThemeMode.light : ThemeMode.dark);
+    Get.offAllNamed("/");
   }
 
   getThemePrimaryColor() {

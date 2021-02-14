@@ -5,18 +5,38 @@ import '../controller/auth_controller.dart';
 import '../controller/base_controller.dart';
 import '../controller/main_controller.dart';
 
-// ignore: must_be_immutable
-class BaseView<T extends BaseController> extends StatelessWidget {
-  final MainController mainController = Get.put(MainController());
-  double dynamicHeight({double height = 1}) => Get.height * height;
-  double dynamicWidth({double width = 1}) => Get.width * width;
+abstract class BaseState<T extends StatefulWidget> extends State<T> {
+  double dynamicHeight({double height}) => Get.height * height;
+  double dynamicWidth({double width}) => Get.width * width;
   bool isPhone() => GetPlatform.isMobile;
   bool isVertical() => Get.context.isPortrait;
+}
 
-  final Widget Function(BuildContext context, T controller) onPageBuilder;
+// ignore: must_be_immutable
+class BaseView<T> extends StatefulWidget {
+  final Widget Function(BuildContext context, T controller, AuthController authController, MainController mainController) onPageBuilder;
   final BaseController controller;
+  final Function(T controller) onModelReady;
+  final VoidCallback onDispose;
 
-  BaseView({Key key, @required this.onPageBuilder, this.controller}) : super(key: key);
+  BaseView({Key key, @required this.onPageBuilder, this.controller, this.onModelReady, this.onDispose}) : super(key: key);
+  @override
+  _BaseViewState createState() => _BaseViewState();
+}
+
+class _BaseViewState extends BaseState<BaseView> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.onModelReady != null) widget.onModelReady(widget.controller);
+  }
+
+  @override
+  void dispose() {
+    // widget.controller.dispose();
+    if (widget.onDispose != null) widget.onDispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,15 +67,7 @@ class BaseView<T extends BaseController> extends StatelessWidget {
           ),
         );
       }
-      return onPageBuilder(context, controller);
+      return widget.onPageBuilder(context, widget.controller, AuthController.instance, MainController.instance);
     });
   }
-}
-
-class BaseState {
-  final MainController mainController = Get.put(MainController());
-  double dynamicHeight(double value) => Get.height * value;
-  double dynamicWidth(double value) => Get.width * value;
-  bool isPhone() => GetPlatform.isMobile;
-  bool isVertical() => Get.context.isPortrait;
 }

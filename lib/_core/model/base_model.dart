@@ -1,11 +1,11 @@
 import 'package:equatable/equatable.dart';
 
-abstract class BaseModel<T> extends Equatable {
-  Map<String, Object> toJson();
+abstract class BaseModel extends Equatable {
+  BaseModel();
 
-  T fromJson(Map<String, Object> json);
+  factory BaseModel.fromJson() {
+    return null;
+  }
 
-  @override
-  bool get stringify => true; // çalışıyor mu test etmek lazım?? equatable özelliği
-
+  Map<String, dynamic> toJson();
 }

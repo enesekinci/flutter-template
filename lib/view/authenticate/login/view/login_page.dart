@@ -10,7 +10,6 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     print("login page loading...");
-    print(AuthController.instance.isLogin);
     return LoginForm();
   }
 }
@@ -23,7 +22,7 @@ class LoginForm extends StatefulWidget {
 class _LoginFormState extends State<LoginForm> {
   bool _rememberMe = false;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final _mainController = Get.put(MainController());
+  final _mainController = MainController.instance;
   final email = TextEditingController();
   final password = TextEditingController();
 
@@ -48,10 +47,11 @@ class _LoginFormState extends State<LoginForm> {
     }
     return Scaffold(
       body: BaseView(
-        onPageBuilder: (context, controller) {
+        onPageBuilder: (context, controller, authController, mainController) {
           return buildBody();
         },
-        controller: Get.put(AuthController.instance),
+        // controller: Get.put(AuthController.instance),
+        onModelReady: (controller) => controller = AuthController.instance,
       ),
     );
   }
@@ -199,15 +199,18 @@ class _LoginFormState extends State<LoginForm> {
     if (_formKey.currentState.validate()) {
       print("_rememberMe");
       print(_rememberMe);
-      bool login = await AuthController.instance.login(email: email.text, password: password.text, rememberMe: _rememberMe);
-      print("login =>" + login.toString());
-      if (login) {
+
+      dynamic result = await AuthController.instance.login(email: email.text, password: password.text, rememberMe: _rememberMe);
+
+      print("login =>" + result.toString());
+
+      if (result is bool && result == true) {
         print("login true");
         Get.offAllNamed('/');
       } else {
         _mainController.showSnackBar(
           position: SnackPosition.BOTTOM,
-          text: "Lütfen bilgileri doldurunuz.",
+          text: result,
           textColor: Colors.white,
           backgroundColor: Colors.grey,
           title: "Hata!",

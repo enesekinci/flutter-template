@@ -5,7 +5,6 @@ import 'package:get_storage/get_storage.dart';
 import '_core/lang/language_manager.dart';
 import '_core/navigation/navigation_route.dart';
 import '_core/theme/app_theme.dart';
-import 'controller/binding/auth_binding.dart';
 import 'view/main_page.dart';
 
 void main() async {
@@ -20,7 +19,6 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       enableLog: false,
-      initialBinding: AuthBinding(),
       title: "Flutter Demo",
       theme: AppTheme.instance.lightTheme,
       darkTheme: AppTheme.instance.darkTheme,

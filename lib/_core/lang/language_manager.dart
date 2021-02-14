@@ -2,11 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class LanguageManager extends Translations {
-  static LanguageManager _instance;
-  static LanguageManager get instance {
-    if (_instance == null) _instance = LanguageManager._init();
-    return _instance;
-  }
+  static LanguageManager _instance = LanguageManager._init();
+  static LanguageManager get instance => _instance;
 
   LanguageManager._init();
 

@@ -7,71 +7,72 @@ import '../repository/auth_repository.dart';
 import 'base_controller.dart';
 
 class AuthController extends BaseController {
+  static AuthController _instance = AuthController._init();
+  static AuthController get instance => _instance;
+
   final repository = AuthRepository.instance;
   Rx<User> _authUser;
   String _email;
-  String _username;
+  String _name;
   RxBool _isLogin = false.obs;
   String _token;
-  String _refreshToken;
 
-  Rx<User> get authUser => _authUser;
+  User get authUser => _authUser.value;
   bool get isLogin => _isLogin.value;
   String get email => _email;
-  String get username => _username;
+  String get name => _name;
   String get token => _token;
-  String get refreshToken => _refreshToken;
-
-  static AuthController _instance;
-  static AuthController get instance {
-    if (_instance == null) _instance = AuthController._init();
-    return _instance;
-  }
 
   AuthController._init() {
     print("AuthController._init");
     _token = StorageManager.instance.getData(key: "auth_token") ?? null;
-    _refreshToken = StorageManager.instance.getData(key: "auth_refresh_token") ?? null;
 
     print("token");
     print(_token);
 
-    // if (_token != null && isTokenExpired()) {
     if (_token != null) {
       _isLogin.value = true;
     } else {
       _isLogin.value = false;
       _token = null;
-      _refreshToken = null;
     }
   }
 
-  Future<bool> login({String email, String password, bool rememberMe}) async {
+  Future<dynamic> login({String email, String password, bool rememberMe}) async {
     openLoading();
-
-    Future.delayed(Duration(seconds: 3));
-
     _isLogin.value = false;
 
     if (!GetUtils.isEmail(email) || password == null || password.length < 6) return false;
 
-    print("auth controller rememberMe => " + rememberMe.toString());
-
-    dynamic response = await repository.login(email: email, password: password, rememberMe: rememberMe);
+    dynamic result = await repository.login(email: email, password: password, rememberMe: rememberMe);
 
     print("auth controller");
-    print(response);
+    print(result);
 
-    if (response != false) {
+    closeLoading();
+    if (result is Map) {
+      print("is Map");
+      print("auth_user");
+      print(result["auth_user"].toString());
+      print("auth_token");
+      print(result["auth_token"]);
+
       _isLogin.value = true;
       _email = email;
-      User responseUser = response['authUser'];
-      _authUser = responseUser.obs;
-      _token = response['token'];
-      closeLoading();
+      User user = User.fromJson(result['auth_user'] as Map);
+      print("user üretildi");
+      print(user.toJson());
+      _authUser = user.obs;
+      print("set authuser geldi");
+      _token = result['auth_token'];
+
+      print("true geldi");
+
       return true;
     }
-    return false;
+    print("false geldi");
+
+    return result;
   }
 
   bool loginWithGoogle() {
@@ -88,12 +89,12 @@ class AuthController extends BaseController {
 
   Future<void> logout() async {
     openLoading();
-    await Future.delayed(Duration(seconds: 3));
+    await Future.delayed(Duration(seconds: 1));
     _authUser = null;
     _email = null;
-    _username = null;
+    // _username = null;
     _token = null;
-    _refreshToken = null;
+    // _refreshToken = null;
     _isLogin.value = false;
     await repository.logout();
     closeLoading();

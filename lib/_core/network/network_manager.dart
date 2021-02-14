@@ -46,6 +46,7 @@ class NetworkManager {
       return responseControl(response);
     } catch (e) {
       print(e);
+      return false;
     }
   }
 

@@ -40,19 +40,17 @@ class _BarCodeReaderState extends State<BarCodeReader> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Barcode scan')),
-        body: Builder(
-          builder: (BuildContext context) {
-            return Container(
-                alignment: Alignment.center,
-                child: Flex(direction: Axis.vertical, mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-                  RaisedButton(onPressed: () => scanBarcodeNormal(), child: Text("Start barcode scan")),
-                  Text('Scan result : $_scanBarcode\n', style: TextStyle(fontSize: 20))
-                ]));
-          },
-        ),
+    return Scaffold(
+      appBar: AppBar(title: const Text('Barcode scan')),
+      body: Builder(
+        builder: (BuildContext context) {
+          return Container(
+              alignment: Alignment.center,
+              child: Flex(direction: Axis.vertical, mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+                RaisedButton(onPressed: () => scanBarcodeNormal(), child: Text("Start barcode scan")),
+                Text('Scan result : $_scanBarcode\n', style: TextStyle(fontSize: 20))
+              ]));
+        },
       ),
     );
   }
